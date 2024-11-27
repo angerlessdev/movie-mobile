@@ -1,3 +1,6 @@
+import 'package:movie_app/core/app_constants.dart';
+import 'package:movie_app/features/movies/domain/movie.dart';
+
 class MovieDto {
   final int id;
   final String title;
@@ -7,14 +10,15 @@ class MovieDto {
   final double voteAverage;
   final List<int> genreIds;
 
-  MovieDto(
-      {required this.id,
-      required this.title,
-      required this.overview,
-      required this.releaseDate,
-      required this.posterPath,
-      required this.voteAverage,
-      required this.genreIds});
+  MovieDto({
+    required this.id,
+    required this.title,
+    required this.overview,
+    required this.releaseDate,
+    required this.posterPath,
+    required this.voteAverage,
+    required this.genreIds,
+  });
 
   factory MovieDto.fromJson(Map<String, dynamic> json) {
     return MovieDto(
@@ -25,6 +29,17 @@ class MovieDto {
       posterPath: json['poster_path'] ?? '',
       voteAverage: json['vote_average'].toDouble() ?? 0.0,
       genreIds: json['genres_id'] ?? [],
+    );
+  }
+
+  Movie toMovie() {
+    return Movie(
+      id: id,
+      title: title,
+      overview: overview,
+      releaseDate: releaseDate,
+      posterPath: AppConstants.imageBaseUrl + posterPath,
+      voteAverage: voteAverage,
     );
   }
 }
