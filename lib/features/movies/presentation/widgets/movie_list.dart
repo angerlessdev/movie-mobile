@@ -1,41 +1,75 @@
 import 'package:flutter/material.dart';
-import 'package:movie_app/features/movies/data/remote/movie_service.dart';
-import 'package:movie_app/features/movies/data/repository/movie_repository.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:movie_app/core/app_constants.dart';
 import 'package:movie_app/features/movies/domain/movie.dart';
+import 'package:movie_app/features/movies/presentation/bloc/favorite_cubit.dart';
+import 'package:movie_app/features/movies/presentation/bloc/movie_bloc.dart';
+import 'package:movie_app/features/movies/presentation/bloc/movie_event.dart';
+import 'package:movie_app/features/movies/presentation/bloc/movie_state.dart';
+import 'package:movie_app/features/movies/presentation/pages/movies_detail_page.dart';
 import 'package:movie_app/features/movies/presentation/widgets/movie_list_item.dart';
 
 class MovieList extends StatefulWidget {
-  const MovieList({super.key, required this.path});
-  final String path;
-
+  const MovieList({super.key, required this.endpoint});
+  final String endpoint;
   @override
   State<MovieList> createState() => _MovieListState();
 }
 
 class _MovieListState extends State<MovieList> {
-  List<Movie> _movies = [];
+  final PagingController<int, Movie> _pagingController =
+      PagingController(firstPageKey: AppConstants.firstPageKey);
 
-  Future<void> _loadData() async {
-    List<Movie> movies = await MovieRepository(movieService: MovieService())
-        .getMovies(widget.path, 1);
-
-    setState(() {
-      _movies = movies;
+  @override
+  void initState() {
+    super.initState();
+    _pagingController.addPageRequestListener((pageKey) {
+      context
+          .read<MovieBloc>()
+          .add(GetMoviesEvent(endpoint: widget.endpoint, page: pageKey));
     });
   }
 
   @override
-  void initState() {
-    _loadData();
-    super.initState();
+  void dispose() {
+    _pagingController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      scrollDirection: Axis.horizontal,
-      itemCount: _movies.length,
-      itemBuilder: (context, index) => MovieListItem(movie: _movies[index]),
+    return BlocListener<MovieBloc, MovieState>(
+      listener: (context, state) {
+        if (state is MovieLoaded) {
+          if (state.hasReachedEnd) {
+            _pagingController.appendLastPage(state.movies);
+          } else {
+            final nextPageKey = _pagingController.nextPageKey! + 1;
+            _pagingController.appendPage(state.movies, nextPageKey);
+          }
+        } else if (state is MovieError) {
+          _pagingController.error = state.message;
+        }
+      },
+      child: PagedListView<int, Movie>(
+        pagingController: _pagingController,
+        scrollDirection: Axis.horizontal,
+        builderDelegate: PagedChildBuilderDelegate(
+          itemBuilder: (context, item, index) => GestureDetector(
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => BlocProvider<FavoriteCubit>(
+                        create: (context) => FavoriteCubit(),
+                        child: MovieDetailPage(movie: item)),
+                  ));
+            },
+            child: MovieListItem(movie: item),
+          ),
+        ),
+      ),
     );
   }
 }
