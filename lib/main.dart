@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:movie_app/shared/presentation/pages/home_page.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:movie_app/features/auth/presentation/bloc/hide_password_cubit.dart';
+import 'package:movie_app/features/auth/presentation/bloc/login_bloc.dart';
+import 'package:movie_app/features/auth/presentation/pages/login_page.dart';
 
 void main() {
   runApp(const MainApp());
@@ -10,9 +13,17 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: HomePage(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => LoginBloc()),
+        BlocProvider(create: (context) => HidenPasswordCubit()),
+      ],
+      child: MaterialApp(
+        home: LoginPage(),
+        debugShowCheckedModeBanner: false,
+        darkTheme: ThemeData.dark(),
+        theme: ThemeData.light(),
+      ),
     );
   }
 }

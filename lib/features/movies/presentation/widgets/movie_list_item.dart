@@ -7,33 +7,67 @@ class MovieListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-        width: 200,
-        child: Stack(children: [
-          ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: Image.network(
-                movie.posterPath,
-                height: 280,
-                fit: BoxFit.cover,
-              )),
-          Positioned(
-              left: 10,
-              top: 10,
-              child: Stack(children: [
-                Icon(
-                  Icons.circle,
-                  color: Colors.yellow.shade800,
-                  size: 40,
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: SizedBox(
+        width: 150,
+        child: Column(
+          children: [
+            Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    movie.image,
+                    height: 210,
+                    width: 150,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: SizedBox(
+                        height: 210,
+                        width: 150,
+                        child: Container(
+                          decoration:
+                              const BoxDecoration(color: Colors.black54),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-                Positioned.fill(
-                  child: Center(
-                      child: Text(
-                    movie.voteAverage.toStringAsFixed(1),
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  )),
-                )
-              ]))
-        ]));
+                Positioned(
+                    left: 6,
+                    top: 6,
+                    child: Stack(
+                      children: [
+                        Icon(
+                          Icons.circle,
+                          color: Colors.yellow.shade800,
+                          size: 30,
+                        ),
+                        Positioned.fill(
+                            child: Center(
+                          child: Text(
+                            movie.voteAverage.toStringAsFixed(1),
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                                color: Colors.black),
+                          ),
+                        )),
+                      ],
+                    )),
+              ],
+            ),
+            Text(
+              movie.title,
+              maxLines: 1,
+              softWrap: false,
+              overflow: TextOverflow.ellipsis,
+            )
+          ],
+        ),
+      ),
+    );
   }
 }

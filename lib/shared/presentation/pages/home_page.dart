@@ -9,12 +9,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final List<Widget> _pages = const [MoviesPage(), MoviesPage(), MoviesPage()];
   int _index = 0;
-  final List<Widget> _pages = const [
-    MoviesPage(),
-    Text('Series'),
-    Text('Favorites')
-  ];
   @override
   Widget build(BuildContext context) {
     return Scaffold(

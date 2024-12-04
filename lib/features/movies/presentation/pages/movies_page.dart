@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:movie_app/core/movie_enum.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:movie_app/core/movie_endpoint.dart';
+import 'package:movie_app/features/movies/presentation/bloc/movie_bloc.dart';
 import 'package:movie_app/features/movies/presentation/widgets/movie_section.dart';
 
 class MoviesPage extends StatelessWidget {
@@ -9,9 +11,13 @@ class MoviesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Column(
-          children: List.generate(MovieEnum.values.length, (index) {
-        return MovieSection(section: MovieEnum.values[index]);
-      })),
+        children: List.generate(
+          MovieEndpoint.values.length,
+          (index) => BlocProvider<MovieBloc>(
+              create: (context) => MovieBloc(),
+              child: MoviesSection(endpoint: MovieEndpoint.values[index])),
+        ),
+      ),
     );
   }
 }

@@ -1,13 +1,18 @@
+import 'package:movie_app/core/resource.dart';
 import 'package:movie_app/features/movies/data/remote/movie_dto.dart';
 import 'package:movie_app/features/movies/data/remote/movie_service.dart';
 import 'package:movie_app/features/movies/domain/movie.dart';
 
 class MovieRepository {
-  final MovieService movieService;
-  MovieRepository({required this.movieService});
+  Future<Resource<List<Movie>>> getMovies(String endpoint, int page) async {
+    Resource<List<MovieDto>> result =
+        await MovieService().getMovies(endpoint, page);
 
-  Future<List<Movie>> getMovies(String path, int page) async {
-    List<MovieDto> moviesDto = await movieService.getMovies(path, page);
-    return moviesDto.map((movieDto) => movieDto.toMovie()).toList();
+    if (result is Success) {
+      return Success(
+          result.data!.map((movieDto) => movieDto.toMovie()).toList());
+    } else {
+      return Error(result.message!);
+    }
   }
 }
